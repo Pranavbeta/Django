@@ -1,0 +1,11 @@
+.carousel-image {
+    height: 500px; /* Adjust this value as needed */
+    object-fit: cover; /* Ensures the image covers the entire element while maintaining its aspect ratio */
+}
+#navbar-example3{
+    background-color: #269dd7 ;
+}
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+    color: var(--bs-nav-pills-link-active-color);
+    background-color: #fff3cd;
+}
