@@ -1,0 +1,103 @@
+{% extends "index.html" %}
+{% block title %}Orders{% endblock title %}
+{% block body%}
+<div class="container mt-5">
+    <h2>New Order</h2>
+    <form id="orderForm" method="post" action="{% url 'new_order' %}">
+        {% csrf_token %}
+        <div class="form-group col-md-4 ">
+            <label for="customerName">Customer Name</label>
+            <input type="text" class="form-control" id="customerName" name="customerName" placeholder="Enter customer name">
+        </div>
+        <table class="table" id="orderTable">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th><button type="button" class="btn btn-info" id="addMore">Add More</button></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><select name="Product" id="Product_id" class="form-control" placeholder="Quantity">
+                        <option selected disabled>--select--</option>
+                        {% for Product in Products %}
+                        <option value={{Product.id}}>{{Product.name}}</option>
+                        {% endfor%}
+                    </select></td>
+                    <td><input type="number" class="form-control" name="price[]" placeholder="Price"  oninput="updateTotal(this)"></td>
+                    <td><input type="number" class="form-control" name="quantity[]" placeholder="Quantity" oninput="updateTotal(this)"></td>
+                    <td><input type="text" class="form-control" name="total[]" placeholder="0.00" readonly ><span> Rs</span></td>
+                    <td><div class="col-sm-3">
+                        <button class="btn btn-sm btn-danger pull-right remove-row" id="remove" type="button" onclick="removeRow(this)">Remove</button>
+                    </div></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="col">
+                <label for="total">Total:</label>
+                <input type="text" placeholder="0.0" class="form-control" id="grandTotal" name="total" readonly>
+            </div>
+            <div class="col">
+                <br>
+                <button type="submit" class="btn btn-info btn-block">Save</button>
+                <a class="btn btn-info" href="{% url 'order'%}" role="button">Back</a>
+            </div>
+        </div>
+    </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+ <!-- Custom Script -->
+ <script>
+    document.getElementById('addMore').addEventListener('click', function() {
+        const table = document.getElementById('orderTable').getElementsByTagName('tbody')[0];
+        const newRow = document.createElement('tr');
+
+        newRow.innerHTML = `
+            <td><select name="uoms" id="uom_id" class="form-control" placeholder="Quantity">
+                <option selected disabled>--select--</option>
+                {% for Product in Products %}
+                    <option value={{Product.id}}>{{Product.name}}</option>
+                {% endfor%}
+            </select></td>
+            <td><input type="number" class="form-control" name="price[]" placeholder="Price"  oninput="updateTotal(this)"></td>
+            <td><input type="number" class="form-control" name="quantity[]" placeholder="Quantity"  oninput="updateTotal(this)"></td>
+            <td><input type="text" class="form-control" name="total[]" placeholder="0.00" readonly><span> Rs</span></td>
+            <td><div class="col-sm-3">
+                <button class="btn btn-sm btn-danger pull-right remove-row" id="remove" type="button" onclick="removeRow(this)">Remove</button></div></td>
+        `;
+        
+        table.appendChild(newRow);
+    });
+
+    function updateTotal(input) {
+        const row = input.closest('tr');
+        const price = parseFloat(row.querySelector('input[name="price[]"]').value);
+        const quantity = parseFloat(row.querySelector('input[name="quantity[]"]').value);
+        const total =row.querySelector('input[name="total[]"]');
+        total.value =(price * quantity).toFixed(2);
+        calculateTotal();
+    }
+    // Remove row 
+    function removeRow(button) {
+        const row = button.closest('tr');
+        row.remove();
+        calculateTotal();
+    }
+    function calculateTotal() {
+        const totalInputs = document.querySelectorAll('input[name="total[]"]');
+        let grandTotal = 0;
+        totalInputs.forEach(input => {
+            grandTotal += parseFloat(input.value) || 0;
+        });
+        document.getElementById('grandTotal').value = grandTotal.toFixed(2);
+    }
+
+    calculateTotal();
+</script>
+{% endblock body %}
